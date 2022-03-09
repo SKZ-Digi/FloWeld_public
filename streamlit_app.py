@@ -36,8 +36,15 @@ def measurment_plotter(option1, offset_group):
     F_anw_y=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_F_anw[N]'].values
 
     WS_S0_y=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_WS0[µV]'].values
-    W_max_x=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_WS_max[µV]'].values
-    #W__x=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_WS_delta_t_max[s]'].values
+
+    WS_max_y=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_WS_max[µV]'].values
+    WS_max_x=[]
+    i=0
+    for element in WS_max_y:
+        WS_max_index = np.where(timeline_waermestrom_set[i]==element)
+        WS_max_x.append(timeline_time_set[i][WS_max_index])
+        i=i+1
+
 
     WS_angl_y=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_WS_angl[µV]'].values
     WS_angl_x=t_angl+delta_t_angl
@@ -48,17 +55,8 @@ def measurment_plotter(option1, offset_group):
     i=0
     for element in timeline_pressure_set:
 
-        #ax1.plot(Delta_t_angl_x, Delta_t_angl_y,  alpha=0.5, label='\u0394$t_{angl}$')
-        #ax1.plot(t_angl_x, t_angl_y,  alpha=0.5, label='$t_{angl}$')
-        #ax1.plot(Delta_t_anw_x, Delta_t_anw_y,  alpha=0.5, label='\u0394$t_{anw}$')
-        #ax1.plot(t_anw_x, t_anw_y,  alpha=0.5 ,label='$t_{anw}$')
-        #ax1.plot(F_angl_x, F_angl_y, color="black")
-        #ax1.plot(F_anw_x, F_anw_y, color="black")
-        #ax1.text(F_angl_x[5], F_angl_y[0],'$F_{angl}$')
-        #ax1.text(F_anw_x[5], F_anw_y[0],'$F_{anw}$')
 
         #Plot Force-Time
-        
         fig1.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(element)+i*offset_Force_time+offset_group,
                     mode='lines',
                     name='lines'))
@@ -105,30 +103,30 @@ def measurment_plotter(option1, offset_group):
                     mode='markers',
                     marker_symbol='x',
                     name='lines'))
-            #fig3.text(0, WS_S0_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{0}$')
-
-        #if WS_0_flag == True:
-        #    ax3.scatter(W_Smax_x,W_Smax_y, marker="x", s=100, color="peru")
-        #    ax3.text(W_Smax_x, W_Smax_y,'$WS_{max}$')
         if WS_angl_flag == True:
             fig3.add_trace(go.Scatter(x=[WS_angl_x[i]], y=[WS_angl_y[i]+i*offset_Waermestrom_time+15*offset_group],
                     mode='markers',
                     marker_symbol='x',
                     name='lines'))
-        #    ax3.scatter(WS_angl_x[i],WS_angl_y[i]+i*offset_Waermestrom_time+15*offset_group, marker="x", s=100, color="blue")
         #    ax3.text(WS_angl_x[i], WS_angl_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{angl}$')
         if WS_anw_flag == True:
             fig3.add_trace(go.Scatter(x=[WS_anw_x[i]], y=[WS_anw_y[i]+i*offset_Waermestrom_time+15*offset_group],
                     mode='markers',
                     marker_symbol='x',
                     name='lines'))
-        #    ax3.scatter(WS_anw_x[i],WS_anw_y[i]+i*offset_Waermestrom_time+15*offset_group, marker="x", s=100, color="aqua")
         #    ax3.text(WS_anw_x[i], WS_anw_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{anw}$')
         #Plot the timeline
+        if WS_max_flag == True:
+            
+            fig3.add_trace(go.Scatter(x=WS_max_x[i], y=[WS_max_y[i]+i*offset_Waermestrom_time+15*offset_group],
+                    mode='markers',
+                    marker_symbol='x',
+                    name='lines'))
+            st.write(WS_max_x[i])
+            st.write(WS_max_y[i]+i*offset_Waermestrom_time+15*offset_group)
         fig3.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(timeline_waermestrom_set[i])+i*offset_Waermestrom_time+15*offset_group,
                     mode='lines',
                     name='lines'))
-        #fig3.add_trace(go.Scatter((timeline_time_set[i],np.array(timeline_waermestrom_set[i])+i*offset_Waermestrom_time+15*offset_group)), mode='lines')
         #ax3.set_ylabel('Waermestrom in [µV]')
         #ax3.set_xlabel('Zeit in [s]')
         #ax3.title.set_text(str(option1)+' Waermestrom-Time with offset')
@@ -202,12 +200,9 @@ if option0=='Measurements and features':
     st.dataframe(df_features.loc[df_features['META_ExperimentalPoint'] == option_measurment])
 
     #Display plots
-    #st.pyplot(fig1)
-    #st.pyplot(fig2)
-    #st.pyplot(fig3)
     st.plotly_chart(fig1, use_container_width=True)
-    
     st.plotly_chart(fig3, use_container_width=True)
+
 elif option0=='Results':
     st.title('Ergebnisse')
     df_features = pd.read_parquet('data_processed')
