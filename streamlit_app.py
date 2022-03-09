@@ -197,11 +197,13 @@ if option0=='Measurements and features':
     if option_compare != '-':
         measurment_plotter(option_compare, offset_group_slider)
     #st.write('You selected:', option1)
-    st.dataframe(df_features.loc[df_features['META_ExperimentalPoint'] == option_measurment])
+    
 
     #Display plots
-    st.plotly_chart(fig1, use_container_width=True)
-    st.plotly_chart(fig3, use_container_width=True)
+    col1, col2, col3 = st.columns(3)
+    col1.plotly_chart(fig1, use_container_width=True)
+    col2.dataframe(df_features.loc[df_features['META_ExperimentalPoint'] == option_measurment])
+    col3.plotly_chart(fig3, use_container_width=True)
 
 elif option0=='Results':
     st.title('Ergebnisse')
