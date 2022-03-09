@@ -2,11 +2,15 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+
 
 #Create plots
-fig1, ax1 = plt.subplots(dpi = 500)
-fig2, ax2 = plt.subplots(dpi = 500)
-fig3, ax3 = plt.subplots(dpi = 500)
+fig1 = go.Figure()
+fig3 = go.Figure()
+
+
+
 
 def measurment_plotter(option1, offset_group):
     
@@ -23,9 +27,18 @@ def measurment_plotter(option1, offset_group):
     delta_t_anw=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_Delta_t_anw[s]'].values
 
     #Obtain the Features for the plots, see Feature Design for definiton
+    delta_t_angl_x=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_Delta_t_angl[s]'].values
+    t_angl_x=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_t_angl[s]'].values+delta_t_angl_x
+    delta_t_anw_x=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_Delta_t_anw[s]'].values+t_angl_x
+    t_anw_x=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_t_anw[s]'].values+delta_t_anw_x
+
+    F_angl_y=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_F_angl[N]'].values
+    F_anw_y=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_F_anw[N]'].values
+
     WS_S0_y=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_WS0[µV]'].values
     W_max_x=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_WS_max[µV]'].values
     #W__x=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_WS_delta_t_max[s]'].values
+
     WS_angl_y=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_WS_angl[µV]'].values
     WS_angl_x=t_angl+delta_t_angl
     WS_anw_y=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_WS_anw[µV]'].values
@@ -45,36 +58,82 @@ def measurment_plotter(option1, offset_group):
         #ax1.text(F_anw_x[5], F_anw_y[0],'$F_{anw}$')
 
         #Plot Force-Time
-        ax1.plot(timeline_time_set[i], np.array(element)+i*offset_Force_time+offset_group)
-        ax1.set_ylabel('Kraft in [N]')
-        ax1.set_xlabel('Zeit in [s]')
-        ax1.title.set_text(str(option1)+' Force-Time with offset')
         
-        #Plot Way-Time
-        ax2.plot(timeline_time_set[i], np.array(timeline_way_set[i])+i*offset_Way_time+offset_group)
-        ax2.set_ylabel('Weg in [mm]')
-        ax2.set_xlabel('Zeit in [s]')
-        ax2.title.set_text(str(option1)+' Way-Time with offset')
+        fig1.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(element)+i*offset_Force_time+offset_group,
+                    mode='lines',
+                    name='lines'))
+        if delta_t_angl_flag == True:
+            fig1.add_trace(go.Scatter(x=[delta_t_angl_x[i]], y=[1],
+                    mode='markers',
+                    marker_symbol='x',
+                    name='lines'))
+        if t_angl_flag == True:
+            fig1.add_trace(go.Scatter(x=[t_angl_x[i]], y=[1],
+                    mode='markers',
+                    marker_symbol='x',
+                    name='lines'))
+        if delta_t_anw_flag == True:
+            fig1.add_trace(go.Scatter(x=[delta_t_anw_x[i]], y=[1],
+                    mode='markers',
+                    marker_symbol='x',
+                    name='lines'))
+        if t_anw_flag == True:
+            fig1.add_trace(go.Scatter(x=[t_anw_x[i]], y=[1],
+                    mode='markers',
+                    marker_symbol='x',
+                    name='lines'))
+        if F_angl_flag == True:
+            fig1.add_trace(go.Scatter(x=[delta_t_angl_x[i],t_angl_x[i]], y=[F_angl_y[i]+i*offset_Force_time+offset_group,F_angl_y[i]+i*offset_Force_time+offset_group],
+                    mode='lines+markers',
+                    marker_symbol='x',
+                    name='lines'))
+        if F_anw_flag == True:
+            fig1.add_trace(go.Scatter(x=[delta_t_anw_x[i],t_anw_x[i]], y=[F_anw_y[i]+i*offset_Force_time+offset_group,F_anw_y[i]+i*offset_Force_time+offset_group],
+                    mode='lines+markers',
+                    marker_symbol='x',
+                    name='lines'))
+        #fig1.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(element)+i*offset_Force_time+offset_group, mode='lines'))
+        #ax1.set_ylabel('Kraft in [N]')
+        #ax1.set_xlabel('Zeit in [s]')
+        #ax1.title.set_text(str(option1)+' Force-Time with offset')
+        
 
         #Plot Force-Time
         #Depending on the checkboxes
         if WS_0_flag == True:
-            ax3.scatter(0,WS_S0_y[i]+i*offset_Waermestrom_time+15*offset_group, marker="x", s=100, color="forestgreen")
-            ax3.text(0, WS_S0_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{0}$')
+            fig3.add_trace(go.Scatter(x=[0], y=[WS_S0_y[i]+i*offset_Waermestrom_time+15*offset_group],
+                    mode='markers',
+                    marker_symbol='x',
+                    name='lines'))
+            #fig3.text(0, WS_S0_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{0}$')
+
         #if WS_0_flag == True:
         #    ax3.scatter(W_Smax_x,W_Smax_y, marker="x", s=100, color="peru")
         #    ax3.text(W_Smax_x, W_Smax_y,'$WS_{max}$')
         if WS_angl_flag == True:
-            ax3.scatter(WS_angl_x[i],WS_angl_y[i]+i*offset_Waermestrom_time+15*offset_group, marker="x", s=100, color="blue")
-            ax3.text(WS_angl_x[i], WS_angl_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{angl}$')
+            fig3.add_trace(go.Scatter(x=[WS_angl_x[i]], y=[WS_angl_y[i]+i*offset_Waermestrom_time+15*offset_group],
+                    mode='markers',
+                    marker_symbol='x',
+                    name='lines'))
+        #    ax3.scatter(WS_angl_x[i],WS_angl_y[i]+i*offset_Waermestrom_time+15*offset_group, marker="x", s=100, color="blue")
+        #    ax3.text(WS_angl_x[i], WS_angl_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{angl}$')
         if WS_anw_flag == True:
-            ax3.scatter(WS_anw_x[i],WS_anw_y[i]+i*offset_Waermestrom_time+15*offset_group, marker="x", s=100, color="aqua")
-            ax3.text(WS_anw_x[i], WS_anw_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{anw}$')
+            fig3.add_trace(go.Scatter(x=[WS_anw_x[i]], y=[WS_anw_y[i]+i*offset_Waermestrom_time+15*offset_group],
+                    mode='markers',
+                    marker_symbol='x',
+                    name='lines'))
+        #    ax3.scatter(WS_anw_x[i],WS_anw_y[i]+i*offset_Waermestrom_time+15*offset_group, marker="x", s=100, color="aqua")
+        #    ax3.text(WS_anw_x[i], WS_anw_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{anw}$')
         #Plot the timeline
-        ax3.plot(timeline_time_set[i], np.array(timeline_waermestrom_set[i])+i*offset_Waermestrom_time+15*offset_group)
-        ax3.set_ylabel('Waermestrom in [µV]')
-        ax3.set_xlabel('Zeit in [s]')
-        ax3.title.set_text(str(option1)+' Waermestrom-Time with offset')
+        fig3.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(timeline_waermestrom_set[i])+i*offset_Waermestrom_time+15*offset_group,
+                    mode='lines',
+                    name='lines'))
+        #fig3.add_trace(go.Scatter((timeline_time_set[i],np.array(timeline_waermestrom_set[i])+i*offset_Waermestrom_time+15*offset_group)), mode='lines')
+        #ax3.set_ylabel('Waermestrom in [µV]')
+        #ax3.set_xlabel('Zeit in [s]')
+        #ax3.title.set_text(str(option1)+' Waermestrom-Time with offset')
+
+        
         i=i+1
 
 
@@ -140,12 +199,15 @@ if option0=='Measurements and features':
     if option_compare != '-':
         measurment_plotter(option_compare, offset_group_slider)
     #st.write('You selected:', option1)
-
+    st.dataframe(df_features.loc[df_features['META_ExperimentalPoint'] == option_measurment])
 
     #Display plots
-    st.pyplot(fig1)
-    st.pyplot(fig2)
-    st.pyplot(fig3)
+    #st.pyplot(fig1)
+    #st.pyplot(fig2)
+    #st.pyplot(fig3)
+    st.plotly_chart(fig1, use_container_width=True)
+    
+    st.plotly_chart(fig3, use_container_width=True)
 elif option0=='Results':
     st.title('Ergebnisse')
     df_features = pd.read_parquet('data_processed')
