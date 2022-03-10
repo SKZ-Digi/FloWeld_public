@@ -102,6 +102,15 @@ def measurment_plotter(option1, offset_group):
                     mode='lines',
                     name=ID_list[i],
                     line=dict(color=colorlist[i])))
+        if delta_t_angl_flag == True:
+            fig1.add_trace(go.Scatter(x=[delta_t_angl_x[i],delta_t_angl_x[i]], y=[delta_t_angl_off_y[i],250],
+                    mode='lines',
+                    marker_symbol='x',
+                    name='\u0394t<sub>angl</sub>',
+                    line=dict(color=colorlist[i])
+                    #text=["\u0394t<sub>angl</sub>"],
+                    #textposition="bottom center"
+                    ))
         if F_angl_flag == True:
             fig1.add_trace(go.Scatter(x=[delta_t_angl_x[i],t_angl_x[i]], y=[F_angl_y[i]+i*offset_Force_time+offset_group,F_angl_y[i]+i*offset_Force_time+offset_group],
                     mode='lines+markers',
