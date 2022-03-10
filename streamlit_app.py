@@ -1,3 +1,4 @@
+from matplotlib import markers
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -5,15 +6,41 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
 st.set_page_config(layout="wide")
+layout = go.Layout(
+  margin=go.layout.Margin(
+        l=0, #left margin
+        r=0, #right margin
+        b=0, #bottom margin
+        t=40, #top margin
+    )
+)
+st.markdown("""
+        <style>
+                
+               .css-18e3th9 {
+                    padding-top: 0rem;
+                    padding-bottom: 10rem;
+                    padding-left: 1rem;
+                    padding-right: 1rem;
+                }
+               .css-1d391kg {
+                    padding-top: 0rem;
+                    padding-right: 1rem;
+                    padding-bottom: 3.5rem;
+                    padding-left: 1rem;
+                }
+        </style>
+        """, unsafe_allow_html=True)
+
 
 #Create plots
-fig1 = go.Figure()
-fig3 = go.Figure()
+fig1 = go.Figure(layout=layout)
+fig3 = go.Figure(layout=layout)
 
 
 
 
-def measurment_plotter(option1, offset_group):
+def measurment_plotter(option1, offset_group, offset_Force_time, offset_Waermestrom_time):
 
 #Obtain the timelines for the diagrams
     timeline_pressure_set=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['TIMESERIES_Kraft_rechts[N]'].values
@@ -52,7 +79,7 @@ def measurment_plotter(option1, offset_group):
     WS_anw_y=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_WS_anw[µV]'].values
     WS_anw_x=t_angl+t_anw+delta_t_angl+delta_t_anw
 
-    ID_list=df_features.iloc[:, 0]
+    ID_list=df_features.loc[df_features['META_ExperimentalPoint'] == option1].index #df_features.iloc[:, 0]
     #ID_list=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['META_ID'].values
 
     delta_t_angl_off_y=[]
@@ -68,6 +95,16 @@ def measurment_plotter(option1, offset_group):
     WS_max_off_y=[]
 
     colorlist = []
+    if offset_group==0:
+        colorlist_force=['rgb(245,245,220)','rgb(255,228,220)','rgb(245,245,196)','rgb(255,235,205)','rgb(245,222,179)',
+                        'rgb(255,248,220)','rgb(255,250,205)','rgb(250,250,210)','rgb(255,255,224)']
+        colorlist_time=['rgb(128,0,128)','rgb(186,85,211)','rgb(153,50,204)','rgb(148,0,211)','rgb(139,0,139)',
+                        'rgb(216,191,216)','rgb(221,160,221)','rgb(238,130,238)','rgb(255,0,255)']
+    else:
+        colorlist_force=['rgb(139,69,19)','rgb(160,82,45)','rgb(210,105,30)','rgb(205,133,63)','rgb(244,164,96)',
+                        'rgb(222,184,135)','rgb(210,180,140)','rgb(188,143,143)','rgb(210,184,135)']
+        colorlist_time=['rgb(0,206,209)','rgb(64,224,208)','rgb(72,209,204)','rgb(175,238,238)','rgb(127,255,212)',
+                        'rgb(176,224,230)','rgb(95,158,160)','rgb(0,255,255)','rgb(0,139,139)']
     i=0
     for element in timeline_pressure_set:
         
@@ -76,12 +113,15 @@ def measurment_plotter(option1, offset_group):
             base2=0
             base3=0
             colorlist.append('rgb('+str(base1-i*13)+','+str(base2+i*20)+','+str(base3+i*40)+')')
+
+        
             i=i+1
         else:
             base1=0
             base2=0
             base3=255
             colorlist.append('rgb('+str(base1+i*25)+','+str(base2+i*20)+','+str(base3-i*30)+')')
+
             i=i+1
     i=0
     for element in timeline_pressure_set:
@@ -102,32 +142,53 @@ def measurment_plotter(option1, offset_group):
                     mode='lines',
                     name=ID_list[i],
                     line=dict(color=colorlist[i])))
-        if delta_t_angl_flag == True:
+        if Time_all == True:
             fig1.add_trace(go.Scatter(x=[delta_t_angl_x[i],delta_t_angl_x[i]], y=[delta_t_angl_off_y[i],250],
                     mode='lines',
-                    marker_symbol='x',
                     name='\u0394t<sub>angl</sub>',
-                    line=dict(color=colorlist[i])
-                    #text=["\u0394t<sub>angl</sub>"],
-                    #textposition="bottom center"
+                    showlegend=False,
+                    line=dict(color=colorlist_time[i])
                     ))
-        if F_angl_flag == True:
+        
+            fig1.add_trace(go.Scatter(x=[t_angl_x[i],t_angl_x[i]], y=[t_angl_off_y[i],250],
+                    mode='lines',
+                    name='t<sub>angl</sub>',
+                    showlegend=False,
+                    line=dict(color=colorlist_time[i])
+                    ))
+        
+            fig1.add_trace(go.Scatter(x=[delta_t_anw_x[i],delta_t_anw_x[i]], y=[delta_t_anw_off_y[i],250],
+                    mode='lines',
+                    name='\u0394t<sub>anw</sub>',
+                    showlegend=False,
+                    line=dict(color=colorlist_time[i])
+                    ))
+       
+            fig1.add_trace(go.Scatter(x=[t_anw_x[i],t_anw_x[i]], y=[t_anw_off_y[i],250],
+                    mode='lines',
+
+                    name='t<sub>anw</sub>',
+                    showlegend=False,
+                    line=dict(color=colorlist_time[i])
+                    ))
+        if Force_all == True:
             fig1.add_trace(go.Scatter(x=[delta_t_angl_x[i],t_angl_x[i]], y=[F_angl_y[i]+i*offset_Force_time+offset_group,F_angl_y[i]+i*offset_Force_time+offset_group],
                     mode='lines+markers',
                     marker_symbol='x',
-                    ))
-        if F_anw_flag == True:
+                    showlegend=False,
+                    line=dict(color=colorlist_force[i])))
+                    
+        
             fig1.add_trace(go.Scatter(x=[delta_t_anw_x[i],t_anw_x[i]], y=[F_anw_y[i]+i*offset_Force_time+offset_group,F_anw_y[i]+i*offset_Force_time+offset_group],
                     mode='lines+markers',
                     marker_symbol='x',
-                    ))
-        #fig1.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(element)+i*offset_Force_time+offset_group, mode='lines'))
-        #ax1.set_ylabel('Kraft in [N]')
-        #ax1.set_xlabel('Zeit in [s]')
-        #ax1.title.set_text(str(option1)+' Force-Time with offset')
+                    showlegend=False,
+                    line=dict(color=colorlist_force[i])))
+                    
+
         
 
-        #Plot Force-Time
+        #Plot WS-Time
         #Depending on the checkboxes
         
             
@@ -135,71 +196,159 @@ def measurment_plotter(option1, offset_group):
                     mode='lines',
                     name=ID_list[i],
                     line=dict(color=colorlist[i])))
-        #ax3.set_ylabel('Waermestrom in [µV]')
-        #ax3.set_xlabel('Zeit in [s]')
-        #ax3.title.set_text(str(option1)+' Waermestrom-Time with offset')
+        if WS_all == True:
+            fig3.add_trace(go.Scatter(x=[WS_max_x[i]], y=[WS_max_off_y[i]],
+                    mode='markers',
+                    marker_symbol='x',
+                    marker=dict(color=colorlist_time[i]),
+                    showlegend=False,
+                    name='WS<sub>max</sub>'
+                    ))
+
+            fig3.add_trace(go.Scatter(x=[WS_0_off_x[i]], y=[WS_0_off_y[i]],
+                    mode='markers',
+                    marker_symbol='x',
+                    marker=dict(color=colorlist_time[i]),
+                    showlegend=False,
+                    name='WS<sub>0</sub>'
+                    ))
+
+            fig3.add_trace(go.Scatter(x=[WS_angl_x[i]], y=[WS_angl_off_y[i]],
+                    mode='markers',
+                    marker_symbol='x',
+                    marker=dict(color=colorlist_force[i]),
+                    showlegend=False,
+                    name='WS<sub>angl</sub>'
+                    ))
+
+
+            fig3.add_trace(go.Scatter(x=[WS_anw_x[i]], y=[WS_anw_off_y[i]],
+                    mode='markers',
+                    marker_symbol='x',
+                    marker=dict(color=colorlist_force[i]),
+                    showlegend=False,
+                    name='WS<sub>anw</sub>'
+                    ))
+        i=i+1
+
+    i=i-1
+    fig1.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(element)+i*offset_Force_time+offset_group,
+                mode='lines',
+                name=ID_list[i],
+                line=dict(color=colorlist[i])))
+    if Time_all == True:
+        fig1.add_trace(go.Scatter(x=[delta_t_angl_x[i],delta_t_angl_x[i]], y=[delta_t_angl_off_y[i],250],
+                mode='lines+text',
+                name='\u0394t<sub>angl</sub>',
+                showlegend=False,
+                text=["","\u0394t<sub>angl</sub>"],
+                textposition="top center",
+                line=dict(color=colorlist_time[i])
+                ))
+        
+        fig1.add_trace(go.Scatter(x=[t_angl_x[i],t_angl_x[i]], y=[t_angl_off_y[i],250],
+                mode='lines+text',
+                name='t<sub>angl</sub>',
+                showlegend=False,
+                text=["","t<sub>angl</sub>"],
+                textposition="top center",
+                line=dict(color=colorlist_time[i])
+                ))
+        
+        fig1.add_trace(go.Scatter(x=[delta_t_anw_x[i],delta_t_anw_x[i]], y=[delta_t_anw_off_y[i],250],
+                mode='lines+text',
+                name='\u0394t<sub>anw</sub>',
+                showlegend=False,
+                text=["","\u0394t<sub>anw</sub>"],
+                textposition="top center",
+                line=dict(color=colorlist_time[i])
+                ))
+       
+        fig1.add_trace(go.Scatter(x=[t_anw_x[i],t_anw_x[i]], y=[t_anw_off_y[i],250],
+                mode='lines+text',
+
+                name='t<sub>anw</sub>',
+                showlegend=False,
+                text=["","t<sub>anw</sub>"],
+                textposition="top center",
+                line=dict(color=colorlist_time[i])
+                ))
+    if (Force_all == True) and (offset_group==0):
+        fig1.add_trace(go.Scatter(x=[delta_t_angl_x[i],(delta_t_angl_x[i]+t_angl_x[i])/2,t_angl_x[i]], y=[F_angl_y[i]+i*offset_Force_time+offset_group,F_angl_y[i]+i*offset_Force_time+offset_group,F_angl_y[i]+i*offset_Force_time+offset_group],
+                mode='lines+text',
+                #marker_symbol='x',
+                showlegend=False,
+                name='F<sub>angl</sub>',
+                text=["","F<sub>angl</sub>",""],
+                textposition="top center",
+                line=dict(color=colorlist_force[i])))
+                    
+        
+        fig1.add_trace(go.Scatter(x=[delta_t_anw_x[i],(delta_t_anw_x[i]+t_anw_x[i])/2, t_anw_x[i]], y=[F_anw_y[i]+i*offset_Force_time+offset_group,F_anw_y[i]+i*offset_Force_time+offset_group,F_anw_y[i]+i*offset_Force_time+offset_group],
+                mode='lines+text',
+                #marker_symbol='x',
+                showlegend=False,
+                name='F<sub>anw</sub>',
+                text=["","F<sub>anw</sub>",""],
+                textposition="top center",
+                line=dict(color=colorlist_force[i])))
+                    
 
         
-        i=i+1
-    if delta_t_angl_flag == True:
-            fig1.add_trace(go.Scatter(x=delta_t_angl_x, y=delta_t_angl_off_y,
-                    mode='markers+text',
-                    marker_symbol='x',
-                    name='\u0394t<sub>angl</sub>'
 
-                    #text=["\u0394t<sub>angl</sub>"],
-                    #textposition="bottom center"
-                    ))
-            #fig1.add_annotation(x=delta_t_angl_x[0]+10, y=delta_t_angl_off_y[0]-20,
-            #text="\u0394t<sub>angl</sub>",
-            #showarrow=False,
-            #arrowhead=1)
-    if t_angl_flag == True:
-        fig1.add_trace(go.Scatter(x=t_angl_x, y=t_angl_off_y,
-                mode='markers',
+        #Plot WS-Time
+        #Depending on the checkboxes
+        
+            
+    fig3.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(timeline_waermestrom_set[i])+i*offset_Waermestrom_time+15*offset_group,
+                mode='lines',
+                name=ID_list[i],
+                line=dict(color=colorlist[i])))
+    if (WS_all == True) and (offset_group==0):
+        fig3.add_trace(go.Scatter(x=[WS_max_x[i]], y=[WS_max_off_y[i]],
+                mode='markers+text',
                 marker_symbol='x',
-                name='t<sub>angl</sub>'))
-    if delta_t_anw_flag == True:
-        fig1.add_trace(go.Scatter(x=delta_t_anw_x, y=delta_t_anw_off_y,
-                mode='markers',
+                marker=dict(color=colorlist_time[i]),
+                showlegend=False,
+                text=["WS<sub>0</sub>"],
+                textposition="top center",
+                name='WS<sub>max</sub>'
+                ))
+        fig3.add_trace(go.Scatter(x=[WS_0_off_x[i]], y=[WS_0_off_y[i]],
+                mode='markers+text',
                 marker_symbol='x',
-                name='\u0394t<sub>anw</sub>'))
-    if t_anw_flag == True:
-        fig1.add_trace(go.Scatter(x=t_anw_x, y=t_anw_off_y,
-                mode='markers',
+                marker=dict(color=colorlist_time[i]),
+                showlegend=False,
+                text=["WS<sub>0</sub>"],
+                textposition="top center",
+                name='WS<sub>0</sub>'
+                ))
+
+        fig3.add_trace(go.Scatter(x=[WS_angl_x[i]], y=[WS_angl_off_y[i]],
+                mode='markers+text',
                 marker_symbol='x',
-                name='t<sub>anw</sub>'))
-    if WS_0_flag == True:
-        fig3.add_trace(go.Scatter(x=WS_0_off_x, y=WS_0_off_y,
-                mode='markers',
+                marker=dict(color=colorlist_force[i]),
+                showlegend=False,
+                text=["WS<sub>angl</sub>"],
+                textposition="top center",
+                name='WS<sub>angl</sub>'
+                ))
+
+
+        fig3.add_trace(go.Scatter(x=[WS_anw_x[i]], y=[WS_anw_off_y[i]],
+                mode='markers+text',
                 marker_symbol='x',
-                #color='royalblue',
-                name='WS<sub>0</sub>'))
-    if WS_angl_flag == True:
-        fig3.add_trace(go.Scatter(x=WS_angl_x, y=WS_angl_off_y,
-                mode='markers',
-                marker_symbol='x',
-                name='WS<sub>angl</sub>'))
-    #    ax3.text(WS_angl_x[i], WS_angl_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{angl}$')
-    if WS_anw_flag == True:
-        fig3.add_trace(go.Scatter(x=WS_anw_x, y=WS_anw_off_y,
-                mode='markers',
-                marker_symbol='x',
-                name='WS<sub>anw</sub>'))
-    #    ax3.text(WS_anw_x[i], WS_anw_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{anw}$')
-    #Plot the timeline
-    if WS_max_flag == True:
-        fig3.add_trace(go.Scatter(x=WS_max_x, y=WS_max_off_y,
-                mode='markers',
-                marker_symbol='x',
-                #text=["WS_max"],
-                #textposition="top center",
-                name='WS<sub>max</sub>'))
+                marker=dict(color=colorlist_force[i]),
+                showlegend=False,
+                text=["WS<sub>anw</sub>"],
+                textposition="top center",
+                name='WS<sub>anw</sub>'
+                ))
     
     fig1.update_xaxes(range=[0, timeline_time_set[0][-1]*1.1])
     fig3.update_xaxes(range=[0, timeline_time_set[0][-1]*1.1])
 
-
+st.sidebar.write("download the data [here](www.google.de)")
 option0 = st.sidebar.selectbox(
      'Select page',
      ['Measurements and features', 'Results'])
@@ -208,7 +357,7 @@ st.sidebar.markdown('***')
 
 if option0=='Measurements and features':
     #Header
-    st.title('Measurments und Features')
+    st.title('Daten des FloWeld-Projekts')
 
     #Loading the dataframe
     df_features = pd.read_parquet('data_processed')
@@ -232,21 +381,21 @@ if option0=='Measurements and features':
         'Compare with different experimental point?',
         list_experimental_points_2)
     if option_compare != '-':
-        offset_group_slider = st.sidebar.slider('Offset between experimental points', min_value=1,max_value= 200, value=40)
+        offset_group_slider = 45 #st.sidebar.slider('Offset between experimental points', min_value=1,max_value= 200, value=40)
 
     st.sidebar.markdown('***')
     #Sidebar elements for Force-Time diagram
     st.sidebar.write('Choose the features for Force-Time plot:')
-    offset_Force_time = st.sidebar.slider('offset_Force_time', max_value= 120, value=20)
-    explanation_force=st.sidebar.expander(label="What does this mean?")
-    explanation_force.write("explanation of the features")
+    offset_Force_time = 20 #st.sidebar.slider('offset_Force_time', max_value= 120, value=20)
+    #explanation_force=st.sidebar.expander(label="What does this mean?")
+    #explanation_force.write("explanation of the features")
     
-    delta_t_angl_flag = st.sidebar.checkbox('\u0394t_[angl] ')
-    delta_t_anw_flag = st.sidebar.checkbox('\u0394t_{anw}')
-    F_angl_flag = st.sidebar.checkbox('F_{angl}')
-    F_anw_flag = st.sidebar.checkbox('F_{anw}')
-    t_angl_flag = st.sidebar.checkbox('t_{angl}')
-    t_anw_flag = st.sidebar.checkbox('t_{anw}')
+    Time_all = st.sidebar.checkbox('Show all time Features ')
+    Force_all = st.sidebar.checkbox('Show all force Features')
+    #F_angl_flag = st.sidebar.checkbox('F_{angl}')
+    #F_anw_flag = st.sidebar.checkbox('F_{anw}')
+    #t_angl_flag = st.sidebar.checkbox('t_{angl}')
+    #t_anw_flag = st.sidebar.checkbox('t_{anw}')
     st.sidebar.markdown('***')
 
     #Sidebar elements for Way-Time diagram
@@ -258,15 +407,15 @@ if option0=='Measurements and features':
 
     #Sidebar elements for Waermestrom-Time diagram
     st.sidebar.write('Choose the features for Waermestrom-Time plot:')
-    offset_Waermestrom_time = st.sidebar.slider('offset_Waermestrom_time', max_value= 3000, value=300)
-    WS_max_flag = st.sidebar.checkbox('WS_{max}')
-    WS_0_flag = st.sidebar.checkbox('WS_{0}', True)
-    WS_angl_flag = st.sidebar.checkbox('WS_{angl}', True)
-    WS_anw_flag = st.sidebar.checkbox('WS_{anw}', True)
+    offset_Waermestrom_time = 300 #st.sidebar.slider('offset_Waermestrom_time', max_value= 3000, value=300)
+    WS_all = st.sidebar.checkbox('all Waermestrom Features')
+    ##WS_0_flag = st.sidebar.checkbox('WS_{0}', True)
+    #WS_angl_flag = st.sidebar.checkbox('WS_{angl}', True)
+    #WS_anw_flag = st.sidebar.checkbox('WS_{anw}', True)
 
-    measurment_plotter(option_measurment, 0)
+    measurment_plotter(option_measurment, 0, offset_Force_time, offset_Waermestrom_time)
     if option_compare != '-':
-        measurment_plotter(option_compare, offset_group_slider)
+        measurment_plotter(option_compare, offset_group_slider, offset_Force_time, offset_Waermestrom_time)
     
     #st.write('You selected:', option1)
     
@@ -281,6 +430,17 @@ if option0=='Measurements and features':
     #expander_table.write("test")
     #clicked = expander_table.button("View data")
     col1, col3 = st.columns((2,2))
+
+    fig1.update_layout(
+    title="Force-Time Plot",
+    xaxis_title="Time in [s]",
+    yaxis_title="Force in [N]",)
+    fig3.update_layout(
+    title="Waermestrom-Time Plot",
+    xaxis_title="Time in [s]",
+    yaxis_title="Voltage signal of the Waermestrom sensor in [µV]",)
+
+
     col1.plotly_chart(fig1, use_container_width=True)
     
     col3.plotly_chart(fig3, use_container_width=True)
@@ -288,53 +448,36 @@ if option0=='Measurements and features':
 elif option0=='Results':
     st.title('Ergebnisse')
     df_features = pd.read_parquet('data_processed')
-    #df_features.to_excel("data_processed.xlsx") 
-    #df_features.to_excel('data_processed.xlsx')
 
-
-    #Obtain a list of all measurement variations
-    df_experimental_points=df_features['META_ExperimentalPoint'].values
-    #Remove duplicates
-    list_experimental_points=list(dict.fromkeys(df_experimental_points))
-    list_experimental_points.insert(0, 'all PVC')
-    list_experimental_points.insert(0, 'all PP')
+    list_experimental_points=[]
+    list_experimental_points.insert(0, 'PVC-U')
+    list_experimental_points.insert(0, 'PP-H')
     checkbox_list = []
-    
-    i=850
-    for element in list_experimental_points:
-        if element=='all PVC':
-            checkbox_list.append(st.sidebar.checkbox(element, True, key = i))
-        else:
-            checkbox_list.append(st.sidebar.checkbox(element, key = i))
-        i=i+1
+    all_PP = st.sidebar.checkbox('PP-H', True)
+    all_PVC= st.sidebar.checkbox('PVC-U', True )
+ 
 
-    if checkbox_list[0] == True:
-        selected_data=df_features.loc[df_features['FEAT_Material_PVC'] == 1]
-       
-
-    elif checkbox_list[1] == True:
+    if all_PP == True:
         selected_data=df_features.loc[df_features['FEAT_Material_PP'] == 1]
-
-    else:
-        del checkbox_list[0]
-        del checkbox_list[0]
-        del list_experimental_points[0]
-        del list_experimental_points[0]
-        i=0
-        selected_data = pd.DataFrame()
-        for element in checkbox_list:
-            if element ==True:
-                new_dataframe=df_features.loc[df_features['META_ExperimentalPoint'] == list_experimental_points[i]]
-                selected_data = pd.concat([selected_data, new_dataframe])
-            i=i+1
-        #st.write(selected_data)
-    expander_results=st.expander(label="View data")
-    expander_results.dataframe(selected_data)
-    expander_results.write("explanation of the features")
-    ID_list=df_features.iloc[:, 0]
-    weld_factor_value=df_features['LABEL_weld_factor'].values
-    #fig1 = go.Figure()
-    fig1.add_trace(go.Scatter(x=ID_list, y=weld_factor_value, 
+        fig1.add_trace(go.Scatter(x=selected_data['META_ExperimentalPoint'].values, y=selected_data['LABEL_weld_factor'].values, 
                     mode='markers',
+                    marker=dict(color='firebrick'),
+                    name='PP-H',
                     marker_symbol='x',))
+
+    if all_PVC ==True:
+        selected_data=df_features.loc[df_features['FEAT_Material_PVC'] == 1]
+        fig1.add_trace(go.Scatter(x=selected_data['META_ExperimentalPoint'].values, y=selected_data['LABEL_weld_factor'].values, 
+                    mode='markers',
+                    marker=dict(color='slateblue'),
+                    name='PVC-U',
+                    marker_symbol='x',))
+    
+
+    #fig1 = go.Figure()
+    fig1.update_layout(
+    title="Weld Factor for different experimental points",
+    xaxis_title="Experimental Point",
+    yaxis_title="Weld Factor",)
+    
     st.plotly_chart(fig1, use_container_width=True)
