@@ -14,7 +14,7 @@ fig3 = go.Figure()
 
 
 def measurment_plotter(option1, offset_group):
-    
+
 #Obtain the timelines for the diagrams
     timeline_pressure_set=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['TIMESERIES_Kraft_rechts[N]'].values
     timeline_way_set=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['TIMESERIES_Weg_rechts[mm]'].values
@@ -52,17 +52,37 @@ def measurment_plotter(option1, offset_group):
     WS_anw_y=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['FEAT_WS_anw[µV]'].values
     WS_anw_x=t_angl+t_anw+delta_t_angl+delta_t_anw
 
+    ID_list=df_features.iloc[:, 0]
+    #ID_list=df_features.loc[df_features['META_ExperimentalPoint'] == option1]['META_ID'].values
+
     delta_t_angl_off_y=[]
     t_angl_off_y=[]
     delta_t_anw_off_y=[]
     t_anw_off_y=[]
     F_angl_off_y=[]
     F_anw_off_y=[]
+    WS_0_off_x=[]
     WS_0_off_y=[]
     WS_angl_off_y=[]
     WS_anw_off_y=[]
     WS_max_off_y=[]
 
+    colorlist = []
+    i=0
+    for element in timeline_pressure_set:
+        
+        if offset_group==0:
+            base1=255
+            base2=0
+            base3=0
+            colorlist.append('rgb('+str(base1-i*13)+','+str(base2+i*20)+','+str(base3+i*40)+')')
+            i=i+1
+        else:
+            base1=0
+            base2=0
+            base3=255
+            colorlist.append('rgb('+str(base1+i*25)+','+str(base2+i*20)+','+str(base3-i*30)+')')
+            i=i+1
     i=0
     for element in timeline_pressure_set:
         delta_t_angl_off_y.append(1)
@@ -71,6 +91,7 @@ def measurment_plotter(option1, offset_group):
         t_anw_off_y.append(1)
         #F_angl_off_y.append(F_angl_y[i]+i*offset_Force_time+offset_group,F_angl_y[i]+i*offset_Force_time+offset_group)
         #F_anw_off_y.append(F_anw_y[i]+i*offset_Force_time+offset_group,F_anw_y[i]+i*offset_Force_time+offset_group)
+        WS_0_off_x.append(0)
         WS_0_off_y.append(WS_S0_y[i]+i*offset_Waermestrom_time+15*offset_group)
         WS_angl_off_y.append(WS_angl_y[i]+i*offset_Waermestrom_time+15*offset_group)
         WS_anw_off_y.append(WS_anw_y[i]+i*offset_Waermestrom_time+15*offset_group)
@@ -79,17 +100,18 @@ def measurment_plotter(option1, offset_group):
         #Plot Force-Time
         fig1.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(element)+i*offset_Force_time+offset_group,
                     mode='lines',
-                    name='lines'))
+                    name=ID_list[i],
+                    line=dict(color=colorlist[i])))
         if F_angl_flag == True:
             fig1.add_trace(go.Scatter(x=[delta_t_angl_x[i],t_angl_x[i]], y=[F_angl_y[i]+i*offset_Force_time+offset_group,F_angl_y[i]+i*offset_Force_time+offset_group],
                     mode='lines+markers',
                     marker_symbol='x',
-                    name='lines'))
+                    ))
         if F_anw_flag == True:
             fig1.add_trace(go.Scatter(x=[delta_t_anw_x[i],t_anw_x[i]], y=[F_anw_y[i]+i*offset_Force_time+offset_group,F_anw_y[i]+i*offset_Force_time+offset_group],
                     mode='lines+markers',
                     marker_symbol='x',
-                    name='lines'))
+                    ))
         #fig1.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(element)+i*offset_Force_time+offset_group, mode='lines'))
         #ax1.set_ylabel('Kraft in [N]')
         #ax1.set_xlabel('Zeit in [s]')
@@ -98,36 +120,12 @@ def measurment_plotter(option1, offset_group):
 
         #Plot Force-Time
         #Depending on the checkboxes
-        if WS_0_flag == True:
-            fig3.add_trace(go.Scatter(x=[0], y=[WS_S0_y[i]+i*offset_Waermestrom_time+15*offset_group],
-                    mode='markers',
-                    marker_symbol='x',
-                    name='lines'))
-        if WS_angl_flag == True:
-            fig3.add_trace(go.Scatter(x=[WS_angl_x[i]], y=[WS_angl_y[i]+i*offset_Waermestrom_time+15*offset_group],
-                    mode='markers',
-                    marker_symbol='x',
-                    name='lines'))
-        #    ax3.text(WS_angl_x[i], WS_angl_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{angl}$')
-        if WS_anw_flag == True:
-            fig3.add_trace(go.Scatter(x=[WS_anw_x[i]], y=[WS_anw_y[i]+i*offset_Waermestrom_time+15*offset_group],
-                    mode='markers',
-                    marker_symbol='x',
-                    name='lines'))
-        #    ax3.text(WS_anw_x[i], WS_anw_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{anw}$')
-        #Plot the timeline
-        if WS_max_flag == True:
-            
-            fig3.add_trace(go.Scatter(x=WS_max_x[i], y=[WS_max_y[i]+i*offset_Waermestrom_time+15*offset_group],
-                    mode='markers',
-                    marker_symbol='x',
-                    text=["WS_max"],
-                    #textposition="top center",
-                    name='lines'))
+        
             
         fig3.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(timeline_waermestrom_set[i])+i*offset_Waermestrom_time+15*offset_group,
                     mode='lines',
-                    name='lines'))
+                    name=ID_list[i],
+                    line=dict(color=colorlist[i])))
         #ax3.set_ylabel('Waermestrom in [µV]')
         #ax3.set_xlabel('Zeit in [s]')
         #ax3.title.set_text(str(option1)+' Waermestrom-Time with offset')
@@ -143,30 +141,60 @@ def measurment_plotter(option1, offset_group):
                     #text=["\u0394t<sub>angl</sub>"],
                     #textposition="bottom center"
                     ))
-            fig1.add_annotation(x=delta_t_angl_x[0], y=delta_t_angl_off_y[0],
-            text="\u0394t<sub>angl</sub>",
-            showarrow=False,
-            arrowhead=1)
+            #fig1.add_annotation(x=delta_t_angl_x[0]+10, y=delta_t_angl_off_y[0]-20,
+            #text="\u0394t<sub>angl</sub>",
+            #showarrow=False,
+            #arrowhead=1)
     if t_angl_flag == True:
         fig1.add_trace(go.Scatter(x=t_angl_x, y=t_angl_off_y,
                 mode='markers',
                 marker_symbol='x',
-                name='lines'))
+                name='t<sub>angl</sub>'))
     if delta_t_anw_flag == True:
         fig1.add_trace(go.Scatter(x=delta_t_anw_x, y=delta_t_anw_off_y,
                 mode='markers',
                 marker_symbol='x',
-                name='lines'))
+                name='\u0394t<sub>anw</sub>'))
     if t_anw_flag == True:
         fig1.add_trace(go.Scatter(x=t_anw_x, y=t_anw_off_y,
                 mode='markers',
                 marker_symbol='x',
-                name='lines'))
+                name='t<sub>anw</sub>'))
+    if WS_0_flag == True:
+        fig3.add_trace(go.Scatter(x=WS_0_off_x, y=WS_0_off_y,
+                mode='markers',
+                marker_symbol='x',
+                #color='royalblue',
+                name='WS<sub>0</sub>'))
+    if WS_angl_flag == True:
+        fig3.add_trace(go.Scatter(x=WS_angl_x, y=WS_angl_off_y,
+                mode='markers',
+                marker_symbol='x',
+                name='WS<sub>angl</sub>'))
+    #    ax3.text(WS_angl_x[i], WS_angl_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{angl}$')
+    if WS_anw_flag == True:
+        fig3.add_trace(go.Scatter(x=WS_anw_x, y=WS_anw_off_y,
+                mode='markers',
+                marker_symbol='x',
+                name='WS<sub>anw</sub>'))
+    #    ax3.text(WS_anw_x[i], WS_anw_y[i]+i*offset_Waermestrom_time+15*offset_group,'$WS_{anw}$')
+    #Plot the timeline
+    if WS_max_flag == True:
+        fig3.add_trace(go.Scatter(x=WS_max_x, y=WS_max_off_y,
+                mode='markers',
+                marker_symbol='x',
+                #text=["WS_max"],
+                #textposition="top center",
+                name='WS<sub>max</sub>'))
     
+    fig1.update_xaxes(range=[0, timeline_time_set[0][-1]*1.1])
+    fig3.update_xaxes(range=[0, timeline_time_set[0][-1]*1.1])
+
 
 option0 = st.sidebar.selectbox(
-     'select page',
+     'Select page',
      ['Measurements and features', 'Results'])
+st.sidebar.markdown('***')
 
 
 if option0=='Measurements and features':
@@ -195,27 +223,29 @@ if option0=='Measurements and features':
         'Compare with different experimental point?',
         list_experimental_points_2)
     if option_compare != '-':
-        offset_group_slider = st.sidebar.slider('Offset between experimental points', max_value= 200, value=40)
+        offset_group_slider = st.sidebar.slider('Offset between experimental points', min_value=1,max_value= 200, value=40)
 
+    st.sidebar.markdown('***')
     #Sidebar elements for Force-Time diagram
     st.sidebar.write('Choose the features for Force-Time plot:')
     offset_Force_time = st.sidebar.slider('offset_Force_time', max_value= 120, value=20)
     explanation_force=st.sidebar.expander(label="What does this mean?")
     explanation_force.write("explanation of the features")
     
-    delta_t_angl_flag = st.sidebar.checkbox('\u0394t_[agnl] ')
+    delta_t_angl_flag = st.sidebar.checkbox('\u0394t_[angl] ')
     delta_t_anw_flag = st.sidebar.checkbox('\u0394t_{anw}')
     F_angl_flag = st.sidebar.checkbox('F_{angl}')
     F_anw_flag = st.sidebar.checkbox('F_{anw}')
     t_angl_flag = st.sidebar.checkbox('t_{angl}')
     t_anw_flag = st.sidebar.checkbox('t_{anw}')
+    st.sidebar.markdown('***')
 
     #Sidebar elements for Way-Time diagram
-    st.sidebar.write('Choose the features for Way-Time plot:')
-    offset_Way_time = st.sidebar.slider('offset_Way_time', max_value= 120, value=20)
-    s_0_flag = st.sidebar.checkbox('s_{0}')
-    s_angl_flag = st.sidebar.checkbox('s_{angl}')
-    s_tot_flag = st.sidebar.checkbox('s_{tot}')
+    #st.sidebar.write('Choose the features for Way-Time plot:')
+    #offset_Way_time = st.sidebar.slider('offset_Way_time', max_value= 120, value=20)
+    #s_0_flag = st.sidebar.checkbox('s_{0}')
+    #s_angl_flag = st.sidebar.checkbox('s_{angl}')
+    #s#_tot_flag = st.sidebar.checkbox('s_{tot}')
 
     #Sidebar elements for Waermestrom-Time diagram
     st.sidebar.write('Choose the features for Waermestrom-Time plot:')
@@ -231,7 +261,6 @@ if option0=='Measurements and features':
     
     #st.write('You selected:', option1)
     
-
     #Display plots
     expander_table = st.expander(label="View data")
     expander_table.write(option_measurment)
@@ -264,7 +293,10 @@ elif option0=='Results':
     
     i=850
     for element in list_experimental_points:
-        checkbox_list.append(st.sidebar.checkbox(element, key = i))
+        if element=='all PVC':
+            checkbox_list.append(st.sidebar.checkbox(element, True, key = i))
+        else:
+            checkbox_list.append(st.sidebar.checkbox(element, key = i))
         i=i+1
 
     if checkbox_list[0] == True:
@@ -286,4 +318,14 @@ elif option0=='Results':
                 new_dataframe=df_features.loc[df_features['META_ExperimentalPoint'] == list_experimental_points[i]]
                 selected_data = pd.concat([selected_data, new_dataframe])
             i=i+1
-        st.write(selected_data)
+        #st.write(selected_data)
+    expander_results=st.expander(label="View data")
+    expander_results.dataframe(selected_data)
+    expander_results.write("explanation of the features")
+    ID_list=df_features.iloc[:, 0]
+    weld_factor_value=df_features['LABEL_weld_factor'].values
+    #fig1 = go.Figure()
+    fig1.add_trace(go.Scatter(x=ID_list, y=weld_factor_value, 
+                    mode='markers',
+                    marker_symbol='x',))
+    st.plotly_chart(fig1, use_container_width=True)
