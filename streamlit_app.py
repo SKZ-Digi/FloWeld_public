@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
+
+#Config, damit der Inhalt die Seite füllt
 st.set_page_config(layout="wide")
 layout = go.Layout(
   margin=go.layout.Margin(
@@ -94,6 +96,8 @@ def measurment_plotter(option1, offset_group, offset_Force_time, offset_Waermest
     WS_anw_off_y=[]
     WS_max_off_y=[]
 
+
+    #Farben, welche für die Plots verwendet werden
     colorlist = []
     if offset_group==0:
         colorlist_force=['rgb(245,245,220)','rgb(255,228,220)','rgb(245,245,196)','rgb(255,235,205)','rgb(245,222,179)',
@@ -123,6 +127,8 @@ def measurment_plotter(option1, offset_group, offset_Force_time, offset_Waermest
             colorlist.append('rgb('+str(base1+i*25)+','+str(base2+i*20)+','+str(base3-i*30)+')')
 
             i=i+1
+
+    #draw each plot and Feature
     i=0
     for element in timeline_pressure_set:
         delta_t_angl_off_y.append(1)
@@ -184,13 +190,9 @@ def measurment_plotter(option1, offset_group, offset_Force_time, offset_Waermest
                     marker_symbol='x',
                     showlegend=False,
                     line=dict(color=colorlist_force[i])))
-                    
-
-        
 
         #Plot WS-Time
         #Depending on the checkboxes
-        
             
         fig3.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(timeline_waermestrom_set[i])+i*offset_Waermestrom_time+15*offset_group,
                     mode='lines',
@@ -231,6 +233,7 @@ def measurment_plotter(option1, offset_group, offset_Force_time, offset_Waermest
                     ))
         i=i+1
 
+    #Draw the last elements again and add annotations, so we only have 1 annotation per element
     i=i-1
     fig1.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(element)+i*offset_Force_time+offset_group,
                 mode='lines',
@@ -293,13 +296,9 @@ def measurment_plotter(option1, offset_group, offset_Force_time, offset_Waermest
                 textposition="top center",
                 line=dict(color=colorlist_force[i])))
                     
-
-        
-
         #Plot WS-Time
         #Depending on the checkboxes
-        
-            
+             
     fig3.add_trace(go.Scatter(x=timeline_time_set[i], y=np.array(timeline_waermestrom_set[i])+i*offset_Waermestrom_time+15*offset_group,
                 mode='lines',
                 name=ID_list[i],
@@ -344,20 +343,24 @@ def measurment_plotter(option1, offset_group, offset_Force_time, offset_Waermest
                 textposition="top center",
                 name='WS<sub>anw</sub>'
                 ))
-    
+    #Set axis 
     fig1.update_xaxes(range=[0, timeline_time_set[0][-1]*1.1])
     fig3.update_xaxes(range=[0, timeline_time_set[0][-1]*1.1])
 
-st.sidebar.write("download the data [here](www.google.de)")
+
+#Top element of the Page
+st.sidebar.image("logo-skz.jpeg")
+st.sidebar.write("[Download data and description here](https://b2share.eudat.eu/records/657bb2383ce946dcb4cab9419e1645d3)")
 option0 = st.sidebar.selectbox(
      'Select page',
-     ['Measurements and features', 'Results'])
+     ['Measurements and features', 'Overview'])
 st.sidebar.markdown('***')
 
 
+#Page 1
 if option0=='Measurements and features':
     #Header
-    st.title('Daten des FloWeld-Projekts')
+    st.title('Data of the FloWeld-Projekts')
 
     #Loading the dataframe
     df_features = pd.read_parquet('data_processed')
@@ -376,67 +379,50 @@ if option0=='Measurements and features':
         'Choose the experimental point',
         list_experimental_points)
 
-    
+    #Compare function
     option_compare = st.sidebar.selectbox(
         'Compare with different experimental point?',
         list_experimental_points_2)
     if option_compare != '-':
-        offset_group_slider = 45 #st.sidebar.slider('Offset between experimental points', min_value=1,max_value= 200, value=40)
+        offset_group_slider = 80 #st.sidebar.slider('Offset between experimental points', min_value=1,max_value= 200, value=40)
 
     st.sidebar.markdown('***')
-    #Sidebar elements for Force-Time diagram
-    st.sidebar.write('Choose the features for Force-Time plot:')
+
     offset_Force_time = 20 #st.sidebar.slider('offset_Force_time', max_value= 120, value=20)
-    #explanation_force=st.sidebar.expander(label="What does this mean?")
-    #explanation_force.write("explanation of the features")
-    
-    Time_all = st.sidebar.checkbox('Show all time Features ')
-    Force_all = st.sidebar.checkbox('Show all force Features')
-    #F_angl_flag = st.sidebar.checkbox('F_{angl}')
-    #F_anw_flag = st.sidebar.checkbox('F_{anw}')
-    #t_angl_flag = st.sidebar.checkbox('t_{angl}')
-    #t_anw_flag = st.sidebar.checkbox('t_{anw}')
-    st.sidebar.markdown('***')
 
-    #Sidebar elements for Way-Time diagram
-    #st.sidebar.write('Choose the features for Way-Time plot:')
-    #offset_Way_time = st.sidebar.slider('offset_Way_time', max_value= 120, value=20)
-    #s_0_flag = st.sidebar.checkbox('s_{0}')
-    #s_angl_flag = st.sidebar.checkbox('s_{angl}')
-    #s#_tot_flag = st.sidebar.checkbox('s_{tot}')
-
-    #Sidebar elements for Waermestrom-Time diagram
-    st.sidebar.write('Choose the features for Waermestrom-Time plot:')
     offset_Waermestrom_time = 300 #st.sidebar.slider('offset_Waermestrom_time', max_value= 3000, value=300)
-    WS_all = st.sidebar.checkbox('all Waermestrom Features')
-    ##WS_0_flag = st.sidebar.checkbox('WS_{0}', True)
-    #WS_angl_flag = st.sidebar.checkbox('WS_{angl}', True)
-    #WS_anw_flag = st.sidebar.checkbox('WS_{anw}', True)
 
+    #Show Features
+    WS_all = st.sidebar.checkbox('show all Features')
+    if WS_all == True:
+        Time_all = True
+        Force_all = True
+    else: 
+          Time_all = False
+          Force_all = False
+
+    #Plot the data by using the function above
     measurment_plotter(option_measurment, 0, offset_Force_time, offset_Waermestrom_time)
     if option_compare != '-':
         measurment_plotter(option_compare, offset_group_slider, offset_Force_time, offset_Waermestrom_time)
     
-    #st.write('You selected:', option1)
-    
-    #Display plots
+    #Display data
     expander_table = st.expander(label="View data")
     expander_table.write(option_measurment)
     expander_table.dataframe(df_features.loc[df_features['META_ExperimentalPoint'] == option_measurment])
-
     if option_compare != '-':
         expander_table.write(option_compare)
         expander_table.dataframe(df_features.loc[df_features['META_ExperimentalPoint'] == option_compare])
-    #expander_table.write("test")
-    #clicked = expander_table.button("View data")
+
+    #Display plots
     col1, col3 = st.columns((2,2))
 
     fig1.update_layout(
-    title="Force-Time Plot",
+    title="Force over time",
     xaxis_title="Time in [s]",
     yaxis_title="Force in [N]",)
     fig3.update_layout(
-    title="Waermestrom-Time Plot",
+    title="Heatflux over time",
     xaxis_title="Time in [s]",
     yaxis_title="Voltage signal of the Waermestrom sensor in [µV]",)
 
@@ -444,9 +430,11 @@ if option0=='Measurements and features':
     col1.plotly_chart(fig1, use_container_width=True)
     
     col3.plotly_chart(fig3, use_container_width=True)
+    st.sidebar.image("logo-bmwk.jpeg")
 
-elif option0=='Results':
-    st.title('Ergebnisse')
+#Page 2
+elif option0=='Overview':
+    st.title('Overview')
     df_features = pd.read_parquet('data_processed')
 
     list_experimental_points=[]
@@ -456,7 +444,7 @@ elif option0=='Results':
     all_PP = st.sidebar.checkbox('PP-H', True)
     all_PVC= st.sidebar.checkbox('PVC-U', True )
  
-
+    #Select the data
     if all_PP == True:
         selected_data=df_features.loc[df_features['FEAT_Material_PP'] == 1]
         fig1.add_trace(go.Scatter(x=selected_data['META_ExperimentalPoint'].values, y=selected_data['LABEL_weld_factor'].values, 
@@ -474,10 +462,11 @@ elif option0=='Results':
                     marker_symbol='x',))
     
 
-    #fig1 = go.Figure()
+    #Show data
     fig1.update_layout(
     title="Weld Factor for different experimental points",
     xaxis_title="Experimental Point",
     yaxis_title="Weld Factor",)
     
     st.plotly_chart(fig1, use_container_width=True)
+    st.sidebar.image("logo-bmwk.jpeg")
