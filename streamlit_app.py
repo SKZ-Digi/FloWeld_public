@@ -197,7 +197,6 @@ def measurment_plotter(option1, offset_group, offset_Force_time, offset_Waermest
                                       showlegend=False,
                                       line=dict(color=colorlist_time[i])
                                       ))
-        
 
         # Plot WS-Time
         # Depending on the checkboxes
@@ -285,28 +284,28 @@ def measurment_plotter(option1, offset_group, offset_Force_time, offset_Waermest
                                   ))
     if (Force_all == True) and (offset_group == 0):
         fig1.add_annotation(x=(delta_t_angl_x[i]+t_angl_x[i])/2, y=F_angl_y[i]+i*offset_Force_time+offset_group,
-                                  #mode='markers+text',
-                                  #marker_symbol='x',
-                                  #showlegend=False,
-                                  #name='F<sub>angl</sub>',
-                                  showarrow=False,
-                                  text="F<sub>angl</sub>",
-                                  yshift=10
-                                  #textposition="top center",
-                                  #line=dict(color=colorlist_force[i])
-                                  )
+                            # mode='markers+text',
+                            # marker_symbol='x',
+                            # showlegend=False,
+                            # name='F<sub>angl</sub>',
+                            showarrow=False,
+                            text="F<sub>angl</sub>",
+                            yshift=10
+                            #textposition="top center",
+                            # line=dict(color=colorlist_force[i])
+                            )
 
         fig1.add_annotation(x=(delta_t_anw_x[i]+t_anw_x[i])/2, y=F_anw_y[i]+i*offset_Force_time+offset_group,
-                                  #mode='lines+text',
-                                  # marker_symbol='x',
-                                  #showlegend=False,
-                                  #name='F<sub>anw</sub>',
-                                  text="F<sub>anw</sub>",
-                                  showarrow=False,
-                                  yshift=10
-                                  #textposition="top center",
-                                  #line=dict(color=colorlist_force[i])
-                                  )
+                            # mode='lines+text',
+                            # marker_symbol='x',
+                            # showlegend=False,
+                            # name='F<sub>anw</sub>',
+                            text="F<sub>anw</sub>",
+                            showarrow=False,
+                            yshift=10
+                            #textposition="top center",
+                            # line=dict(color=colorlist_force[i])
+                            )
 
         # Plot WS-Time
         # Depending on the checkboxes
@@ -359,22 +358,33 @@ def measurment_plotter(option1, offset_group, offset_Force_time, offset_Waermest
     fig3.update_xaxes(range=[0, timeline_time_set[0][-1]*1.1])
 
 
+# # Top element of the Page
+# sb1, sb3 = st.sidebar.columns((2, 2))
+# sb1.image("SKZ-LogoSlogan_Int_4C.jpg")   #SKZ-Logo.jpg
+# sb3.image("bmwi_de_2021.png")
+# st.sidebar.write(
+#     "[Download data and description here](https://b2share.eudat.eu/records/657bb2383ce946dcb4cab9419e1645d3)")
+# option0 = st.sidebar.selectbox(
+#     'Select page',
+#     ['Plot Experiments', 'Overview'])
+# st.sidebar.markdown('***')
+
 # Top element of the Page
-sb1, sb3 = st.sidebar.columns((2, 2))
-sb1.image("SKZ-Logo.jpg")
-sb3.image("bmwi_de_2021.png")
+
+st.sidebar.image("SKZ-LogoSlogan_Int_web.png")  # SKZ-Logo.jpg
+
 st.sidebar.write(
     "[Download data and description here](https://b2share.eudat.eu/records/657bb2383ce946dcb4cab9419e1645d3)")
 option0 = st.sidebar.selectbox(
     'Select page',
-    ['Measurements and features', 'Overview'])
+    ['Plot Experiments', 'Overview'])
 st.sidebar.markdown('***')
 
 
 # Page 1
-if option0 == 'Measurements and features':
+if option0 == 'Plot Experiments':
     # Header
-    st.title('Data of the FloWeld-Projekts')
+    st.title('FloWeld-Project Data')
 
     # Loading the dataframe
     df_features = pd.read_parquet('data_processed')
@@ -434,15 +444,19 @@ if option0 == 'Measurements and features':
         expander_table.dataframe(
             df_features.loc[df_features['META_ExperimentalPoint'] == option_compare])
 
+    st.write("#")   # Empty space
+    
     # Display plots
     col1, col3 = st.columns((2, 2))
 
     fig1.update_layout(
-        title="Force over time",
+        title=dict(text="Force over time", 
+                    font=dict(size=25)),
         xaxis_title="Time in [s]",
         yaxis_title="Force in [N]",)
     fig3.update_layout(
-        title="Heatflux over time",
+        title=dict(text="Heatflux over time", 
+                    font=dict(size=25)),
         xaxis_title="Time in [s]",
         yaxis_title="Voltage signal of the Heatflux sensor in [µV]",)
 
@@ -481,9 +495,20 @@ elif option0 == 'Overview':
                                   marker_symbol='x',))
 
     # Show data
+    st.markdown("**Data Description:**  \n The dataset was acquired during the research project FloWeld, which researches the usage of heatflux sensors in the process of plastics-welding. It consists of 68 weldings with the material PP-H (Polypropylen Homopolymer) and 69 weldings of PVC-U (Polyvinylchlorid unplasticized). The dataset contains timeseries data recorded during the welding process itself as well as features extracted from those timeseries based on domain knowledge. The duration and the temperature of the weldings was varied on purpose throughout the experiment, therefore weldings with different flexural strengths were created with five weldings per experimental point.")
+    st.markdown("The Weld Factor is defined as: ")
+    st.latex(r'''Weld~Factor = \frac{Flexural~strength~of~welding}{Flexural~strength~of~raw~material}''')
+    st.write("#")   # Empty space
+    st.write("#")
+    
     fig1.update_layout(
-        title="Weld Factor for different experimental points",
+        #title="Weld Factor for different experimental points",
+        title=dict(text="Weld Factor for different experimental points", 
+                    font=dict(size=25)),
         xaxis_title="Experimental Point",
         yaxis_title="Weld Factor",)
 
     st.plotly_chart(fig1, use_container_width=True)
+    
+
+st.sidebar.image("bmwi_de_2021.png", width=200)
