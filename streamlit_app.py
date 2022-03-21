@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 
 
 # Config, damit der Inhalt die Seite füllt
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide",page_title='SKZ Data Hub', page_icon='Gandalf_Icon2.PNG') #SKZ-Logo transparent 128x64.png
 layout = go.Layout(
     margin=go.layout.Margin(
         l=0,  # left margin
