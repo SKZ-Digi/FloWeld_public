@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 
 
 # Config, damit der Inhalt die Seite füllt
-st.set_page_config(layout="wide",page_title='SKZ Data Hub', page_icon='SKZ-Logo transparent 128x64.png') #SKZ-Logo transparent 128x64.png
+st.set_page_config(layout="wide",page_title='SKZ FloWeld', page_icon='SKZ-Logo transparent 128x64.png') #SKZ-Logo transparent 128x64.png
 layout = go.Layout(
     margin=go.layout.Margin(
         l=0,  # left margin
@@ -384,22 +384,70 @@ option0 = st.sidebar.selectbox(
     ['Overview', 'Plot Experiments'])
 st.sidebar.markdown('***')
 
-
+df_features = pd.read_parquet('data_processed')
+####################
 # Page 1
-if option0 == 'Plot Experiments':
+####################
+if option0 == 'Overview':
+
+    st.title('Overview')
+    st.markdown("**Data Description:**  \n The dataset was acquired during the research project FloWeld, which researches the usage of heatflux sensors in the process of plastics-welding. It consists of 68 welds with the material PP-H (Polypropylen Homopolymer) and 69 welds of PVC-U (Polyvinylchlorid unplasticized). The dataset contains timeseries data recorded during the welding process itself as well as features extracted from those timeseries based on domain knowledge. The duration and the temperature of the welds was varied on purpose throughout the experiments, with five repetitions per experimental point. Welds with different flexural strengths were created and classified by Weld Factor.")
+    st.markdown("The Weld Factor is defined as: ")
+    st.latex(r'''Weld~Factor = \frac{Flexural~strength~of~welding}{Flexural~strength~of~raw~material}''')
+    st.write("#")   # Empty space
+    st.write("#")
+    
+
+    list_experimental_points = []
+    list_experimental_points.insert(0, 'PVC-U')
+    list_experimental_points.insert(0, 'PP-H')
+    checkbox_list = []
+    all_PP = st.sidebar.checkbox('PP-H', True)
+    all_PVC = st.sidebar.checkbox('PVC-U', True)
+
+    # Select the data
+    if all_PP == True:
+        selected_data = df_features.loc[df_features['FEAT_Material_PP'] == 1]
+        fig1.add_trace(go.Scatter(x=selected_data['META_ExperimentalPoint'].values, y=selected_data['LABEL_weld_factor'].values,
+                                  mode='markers',
+                                  marker=dict(color='firebrick'),
+                                  name='PP-H',
+                                  marker_symbol='x',))
+
+    if all_PVC == True:
+        selected_data = df_features.loc[df_features['FEAT_Material_PVC'] == 1]
+        fig1.add_trace(go.Scatter(x=selected_data['META_ExperimentalPoint'].values, y=selected_data['LABEL_weld_factor'].values,
+                                  mode='markers',
+                                  marker=dict(color='slateblue'),
+                                  name='PVC-U',
+                                  marker_symbol='x',))
+
+ 
+    fig1.update_layout(
+        #title="Weld Factor for different experimental points",
+        title=dict(text="Weld Factor for different experimental points", 
+                    font=dict(size=25)),
+        xaxis_title="Experimental Point",
+        yaxis_title="Weld Factor")
+
+    st.plotly_chart(fig1, use_container_width=True)
+
+####################
+# Page 2
+####################
+elif option0 == 'Plot Experiments':
     # Header
-    st.title('FloWeld-Project Data')
+    st.title('Plot Experiments')
 
-    # Loading the dataframe
-    df_features = pd.read_parquet('data_processed')
-
-
+    
     # Obtain a list of all measurement variations
     df_experimental_points = df_features['META_ExperimentalPoint'].values
+
     # Remove duplicates
     list_experimental_points = list(dict.fromkeys(df_experimental_points))
     list_experimental_points_2 = list(dict.fromkeys(df_experimental_points))
     list_experimental_points_2.insert(0, '-')
+
     # Ask which to display
     option_measurment = st.sidebar.selectbox(
         'Choose the experimental point',
@@ -466,52 +514,7 @@ if option0 == 'Plot Experiments':
     col1.plotly_chart(fig1, use_container_width=True)
 
     col3.plotly_chart(fig3, use_container_width=True)
-
-
-# Page 2
-elif option0 == 'Overview':
-    st.title('Overview')
-    df_features = pd.read_parquet('data_processed')
-
-    list_experimental_points = []
-    list_experimental_points.insert(0, 'PVC-U')
-    list_experimental_points.insert(0, 'PP-H')
-    checkbox_list = []
-    all_PP = st.sidebar.checkbox('PP-H', True)
-    all_PVC = st.sidebar.checkbox('PVC-U', True)
-
-    # Select the data
-    if all_PP == True:
-        selected_data = df_features.loc[df_features['FEAT_Material_PP'] == 1]
-        fig1.add_trace(go.Scatter(x=selected_data['META_ExperimentalPoint'].values, y=selected_data['LABEL_weld_factor'].values,
-                                  mode='markers',
-                                  marker=dict(color='firebrick'),
-                                  name='PP-H',
-                                  marker_symbol='x',))
-
-    if all_PVC == True:
-        selected_data = df_features.loc[df_features['FEAT_Material_PVC'] == 1]
-        fig1.add_trace(go.Scatter(x=selected_data['META_ExperimentalPoint'].values, y=selected_data['LABEL_weld_factor'].values,
-                                  mode='markers',
-                                  marker=dict(color='slateblue'),
-                                  name='PVC-U',
-                                  marker_symbol='x',))
-
-    # Show data
-    st.markdown("**Data Description:**  \n The dataset was acquired during the research project FloWeld, which researches the usage of heatflux sensors in the process of plastics-welding. It consists of 68 welds with the material PP-H (Polypropylen Homopolymer) and 69 welds of PVC-U (Polyvinylchlorid unplasticized). The dataset contains timeseries data recorded during the welding process itself as well as features extracted from those timeseries based on domain knowledge. The duration and the temperature of the welds was varied on purpose throughout the experiments, with five repetitions per experimental point. Welds with different flexural strengths were created and classified by Weld Factor.")
-    st.markdown("The Weld Factor is defined as: ")
-    st.latex(r'''Weld~Factor = \frac{Flexural~strength~of~welding}{Flexural~strength~of~raw~material}''')
-    st.write("#")   # Empty space
-    st.write("#")
     
-    fig1.update_layout(
-        #title="Weld Factor for different experimental points",
-        title=dict(text="Weld Factor for different experimental points", 
-                    font=dict(size=25)),
-        xaxis_title="Experimental Point",
-        yaxis_title="Weld Factor",)
-
-    st.plotly_chart(fig1, use_container_width=True)
     
 
-st.sidebar.image("bmwi_de_2021.png", width=200)
+st.sidebar.image("bmwi_de_2021.png", width=180)
