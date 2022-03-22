@@ -394,8 +394,8 @@ if option0 == 'Overview':
     st.markdown("**Data Description:**  \n The dataset was acquired during the research project FloWeld, which researches the usage of heatflux sensors in the process of plastics-welding. It consists of 68 welds with the material PP-H (Polypropylen Homopolymer) and 69 welds of PVC-U (Polyvinylchlorid unplasticized). The dataset contains timeseries data recorded during the welding process itself as well as features extracted from those timeseries based on domain knowledge. The duration and the temperature of the welds was varied on purpose throughout the experiments, with five repetitions per experimental point. Welds with different flexural strengths were created and classified by Weld Factor.")
     st.markdown("The Weld Factor is defined as: ")
     st.latex(r'''Weld~Factor = \frac{Flexural~strength~of~welding}{Flexural~strength~of~raw~material}''')
-    st.write("#")   # Empty space
-    st.write("#")
+    st.write("")   # Empty space
+    st.write("")
     
 
     list_experimental_points = []
