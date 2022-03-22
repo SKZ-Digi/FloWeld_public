@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 
 
 # Config, damit der Inhalt die Seite füllt
-st.set_page_config(layout="wide",page_title='SKZ Data Hub', page_icon='Gandalf_Icon2.PNG') #SKZ-Logo transparent 128x64.png
+st.set_page_config(layout="wide",page_title='SKZ Data Hub', page_icon='SKZ-Logo transparent 128x64.png') #SKZ-Logo transparent 128x64.png
 layout = go.Layout(
     margin=go.layout.Margin(
         l=0,  # left margin
@@ -16,6 +16,20 @@ layout = go.Layout(
         t=40,  # top margin
     )
 )
+
+
+#remove colored bar and menu
+#header {visibility: hidden;}
+#MainMenu {visibility: hidden;} #hides Menu in Style
+hide_streamlit_style = """
+                        <style>
+                        footer {visibility: hidden;}
+                        header {visibility: hidden;}
+                        </style>
+                        """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+
 st.markdown("""
         <style>
                 
@@ -358,16 +372,6 @@ def measurment_plotter(option1, offset_group, offset_Force_time, offset_Waermest
     fig3.update_xaxes(range=[0, timeline_time_set[0][-1]*1.1])
 
 
-# # Top element of the Page
-# sb1, sb3 = st.sidebar.columns((2, 2))
-# sb1.image("SKZ-LogoSlogan_Int_4C.jpg")   #SKZ-Logo.jpg
-# sb3.image("bmwi_de_2021.png")
-# st.sidebar.write(
-#     "[Download data and description here](https://b2share.eudat.eu/records/657bb2383ce946dcb4cab9419e1645d3)")
-# option0 = st.sidebar.selectbox(
-#     'Select page',
-#     ['Plot Experiments', 'Overview'])
-# st.sidebar.markdown('***')
 
 # Top element of the Page
 
@@ -377,7 +381,7 @@ st.sidebar.write(
     "[Download data and description here](https://b2share.eudat.eu/records/657bb2383ce946dcb4cab9419e1645d3)")
 option0 = st.sidebar.selectbox(
     'Select page',
-    ['Plot Experiments', 'Overview'])
+    ['Overview', 'Plot Experiments'])
 st.sidebar.markdown('***')
 
 
@@ -388,8 +392,7 @@ if option0 == 'Plot Experiments':
 
     # Loading the dataframe
     df_features = pd.read_parquet('data_processed')
-    # df_features.to_excel("data_processed.xlsx")
-    # df_features.to_excel('data_processed.xlsx')
+
 
     # Obtain a list of all measurement variations
     df_experimental_points = df_features['META_ExperimentalPoint'].values
@@ -495,7 +498,7 @@ elif option0 == 'Overview':
                                   marker_symbol='x',))
 
     # Show data
-    st.markdown("**Data Description:**  \n The dataset was acquired during the research project FloWeld, which researches the usage of heatflux sensors in the process of plastics-welding. It consists of 68 weldings with the material PP-H (Polypropylen Homopolymer) and 69 weldings of PVC-U (Polyvinylchlorid unplasticized). The dataset contains timeseries data recorded during the welding process itself as well as features extracted from those timeseries based on domain knowledge. The duration and the temperature of the weldings was varied on purpose throughout the experiment, therefore weldings with different flexural strengths were created with five weldings per experimental point.")
+    st.markdown("**Data Description:**  \n The dataset was acquired during the research project FloWeld, which researches the usage of heatflux sensors in the process of plastics-welding. It consists of 68 welds with the material PP-H (Polypropylen Homopolymer) and 69 welds of PVC-U (Polyvinylchlorid unplasticized). The dataset contains timeseries data recorded during the welding process itself as well as features extracted from those timeseries based on domain knowledge. The duration and the temperature of the welds was varied on purpose throughout the experiments, with five repetitions per experimental point. Welds with different flexural strengths were created and classified by Weld Factor.")
     st.markdown("The Weld Factor is defined as: ")
     st.latex(r'''Weld~Factor = \frac{Flexural~strength~of~welding}{Flexural~strength~of~raw~material}''')
     st.write("#")   # Empty space
