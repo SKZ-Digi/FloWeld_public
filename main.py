@@ -375,7 +375,7 @@ def measurment_plotter(option1, offset_group, offset_Force_time, offset_Waermest
 
 # Top element of the Page
 
-st.sidebar.image("SKZ-LogoSlogan_Int_web.png")  # SKZ-Logo.jpg
+st.sidebar.image("SKZ_logo.png")  # SKZ-Logo
 
 st.sidebar.write(
     "[Download data and description here](https://b2share.eudat.eu/records/657bb2383ce946dcb4cab9419e1645d3)")
